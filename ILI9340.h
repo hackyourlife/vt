@@ -90,12 +90,16 @@
 #define	SCLK			PORTB
 #define	RST			PORTB
 
-#define	CSMASK			PORTB2
-#define	DCMASK			PORTB1
-#define	MOSIMASK		PORTB3
-#define	MISOMASK		PORTB4
-#define	SCLKMASK		PORTB5
-#define	RSTMASK			PORTB0
+#define	CSMASK			_BV(PORTB2)
+#define	DCMASK			_BV(PORTB1)
+#define	MOSIMASK		_BV(PORTB3)
+#define	MISOMASK		_BV(PORTB4)
+#define	SCLKMASK		_BV(PORTB5)
+#define	RSTMASK			_BV(PORTB0)
+
+#define	DDRCS			DDRB
+#define	DDRDC			DDRB
+#define	DDRRST			DDRB
 
 #define	RGB565(r, g, b)		(((r & 0xF8) << 8) | ((g & 0xFC) << 3) \
 					| (b >> 3))

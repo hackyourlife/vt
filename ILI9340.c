@@ -3,6 +3,7 @@
 #include <util/delay.h>
 #include <limits.h>
 
+#include "spi.h"
 #include "ILI9340.h"
 
 #define	NOP __asm__ __volatile__ ("nop");
@@ -106,7 +107,16 @@ void ILI9340_commandList(const u8* addr)
 
 void ILI9340_init()
 {
-	// TODO: initialize spi
+	DDRRST |= RSTMASK;
+	CLEAR_PIN(RST);
+	DDRDC |= DCMASK;
+	DDRCS |= CSMASK;
+
+	SPI_init();
+	SPI_setClockDivider(SPI_CLOCK_DIV2);
+	SPI_setBitOrder(MSBFIRST);
+	SPI_setDataMode(SPI_MODE0);
+
 	SET_PIN(RST);
 	delay(5);
 	CLEAR_PIN(RST);

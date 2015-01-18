@@ -15,15 +15,16 @@ BUILD	:=	build
 MCU	:=	atmega328p
 F_CPU	:=	16000000L
 
-CFLAGS	:=	-Os -g0 -funsigned-bitfields -fpack-struct
-CFLAGS	+=	-fshort-enums -Wall -std=gnu99
-CFLAGS	+=	-ffunction-sections -fdata-sections
-CFLAGS	+=	-mmcu=$(MCU)
+CFLAGS	:=	-Os -g0 -funsigned-bitfields -fpack-struct \
+		-fshort-enums -Wall -std=gnu99 \
+		-ffunction-sections -fdata-sections \
+		-mmcu=$(MCU)
 LDFLAGS	:=	-Wl,-x -Wl,--gc-sections -mmcu=$(MCU)
 
 CFLAGS	+=	-DF_CPU=$(F_CPU)
 
-CFILES	:=	vt.c vt52.c tek4014.c fnt4x6.c ILI9340.c gx.c usart.c main.c
+CFILES	:=	vt.c vt52.c tek4014.c fnt4x6.c ILI9340.c gx.c usart.c spi.c \
+		main.c
 
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #-------------------------------------------------------------------------------
@@ -40,10 +41,12 @@ $(BUILD):
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 demo:
-	gcc -o test -D __DEMO__ vt.c vt52.c tek4014.c fnt4x6.c gx.c demo.c
+	@echo "[DEMO]"
+	@gcc -o demo -D __DEMO__ vt.c vt52.c tek4014.c fnt4x6.c gx.c demo.c
 
 clean:
-	rm -rf $(BUILD) $(TFILES) $(OFILES)
+	@echo "[CLEAN]"
+	@rm -rf $(BUILD) $(TFILES) $(OFILES) demo
 
 $(TARGET): $(TFILES)
 

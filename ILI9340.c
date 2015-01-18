@@ -222,8 +222,8 @@ void ILI9340_fillScreen(const u16 color)
 void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		const u16 color)
 {
-	u16 _w = w;
-	u16 _h = h;
+	s16 _w = w;
+	s16 _h = h;
 	if((x >= __width) || (y >= __height))
 		return;
 	if((x + w - 1) >= __width)

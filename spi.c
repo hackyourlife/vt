@@ -5,10 +5,10 @@
 void SPI_init()
 {
 	PORTB &= ~_BV(PORTB2);
-	DDRB |= _BV(PINB2);
+	DDRB |= _BV(DDB2);
 	SPCR |= _BV(MSTR);
 	SPCR |= _BV(SPE);
-	DDRB |= _BV(PINB5) | _BV(PINB3);
+	DDRB |= _BV(DDB5) | _BV(DDB3);
 }
 
 void SPI_cleanup()

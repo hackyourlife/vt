@@ -7,7 +7,8 @@
 #include "ILI9340.h"
 
 #define	NOP __asm__ __volatile__ ("nop");
-#define	WAIT NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 14 NOPs 
+#define	WAIT NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 15 NOPs 
+#define	WAIT11 NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 11 NOPs 
 
 #define	SET_BIT(port, mask)	port |= (mask)
 #define	CLEAR_BIT(port, mask)	port &= ~(mask)
@@ -45,21 +46,26 @@ static const u8 init_sequence[] PROGMEM = {
 	0x11, 0x00 // Exit sleep
 };
 
-inline void spiwrite_with_abandon(const u8 c)
+void spiwrite_with_abandon(const u8 c)
 {
 	SPDR = c;
+	WAIT11;
+	//while(!(SPSR & (1<<SPIF)));
+	//SPI_transfer(c);
 }
 
-inline void spiwrite(const u8 c)
+void spiwrite(const u8 c)
 {
 	SPDR = c;
 	WAIT;
+	//while(!(SPSR & (1<<SPIF)));
+	//SPI_transfer(c);
 }
 
 void ILI9340_writecommand(const u8 c)
 {
-	SET_PIN(DC);
-	CLEAR_PIN(SCLK);
+	CLEAR_PIN(DC);
+	//CLEAR_PIN(SCLK);
 	CLEAR_PIN(CS);
 	spiwrite(c);
 	SET_PIN(CS);
@@ -67,8 +73,8 @@ void ILI9340_writecommand(const u8 c)
 
 void ILI9340_writedata(const u8 c)
 {
-	CLEAR_PIN(DC);
-	CLEAR_PIN(SCLK);
+	SET_PIN(DC);
+	//CLEAR_PIN(SCLK);
 	CLEAR_PIN(CS);
 	spiwrite(c);
 	SET_PIN(CS);
@@ -105,6 +111,7 @@ void ILI9340_commandList(const u8* addr)
 	}
 }
 
+unsigned char USART_send(unsigned char*, unsigned char);
 void ILI9340_init()
 {
 	DDRRST |= RSTMASK;
@@ -130,8 +137,23 @@ void ILI9340_init()
 	// Display on
 	ILI9340_writecommand(0x29);
 	ILI9340_writecommand(0x2C);
+
+
+	unsigned char info[] = "initialized\r\n";
+	USART_send(info, 13);
 }
 
+void USART_sendHEX(u16 v)
+{
+	unsigned char t[16] = "0123456789ABCDEF";
+	unsigned char buf[5];
+	buf[0] = t[(v >> 12) & 0x0F];
+	buf[1] = t[(v >>  8) & 0x0F];
+	buf[2] = t[(v >>  4) & 0x0F];
+	buf[3] = t[v & 0x0F];
+	buf[4] = ';';
+	USART_send(buf, 5);
+}
 void ILI9340_setAddrWindow(const u16 x0, const u16 y0, const u16 x1,
 		const u16 y1)
 {
@@ -226,9 +248,9 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 	s16 _h = h;
 	if((x >= __width) || (y >= __height))
 		return;
-	if((x + w - 1) >= __width)
+	if((x + _w - 1) >= __width)
 		_w = __width - x;
-	if((y + h - 1) >= __height)
+	if((y + _h - 1) >= __height)
 		_h = __height - y;
 
 	ILI9340_setAddrWindow(x, y, x + _w - 1, y + _h - 1);
@@ -290,4 +312,14 @@ void ILI9340_setRotation(const u8 m)
 void ILI9340_invertDisplay(const u8 i)
 {
 	ILI9340_writecommand(i ? ILI9340_INVON : ILI9340_INVOFF);
+}
+
+u16 ILI9340_width()
+{
+	return __width;
+}
+
+u16 ILI9340_height()
+{
+	return __height;
 }

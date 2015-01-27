@@ -31,12 +31,14 @@ static unsigned char paused;
 
 static void do_xoff()
 {
+	return;
 	unsigned char xoff = XOFF;
 	paused = USART_send(&xoff, 1);
 }
 
 static void do_xon()
 {
+	return;
 	unsigned char xon = XON;
 	if(USART_free() < (READBUFFERSIZE / 2))
 		return;
@@ -48,17 +50,20 @@ static void do_xon()
 #ifndef BAUD_MACRO
 unsigned short USART_getBaud(unsigned long baud)
 {
-	return (F_CPU / 8 / baud - 1) / 2;
+	return F_CPU / 8 / baud - 1;
 }
 #endif
 
-void USART_init(unsigned short baud)
+void USART_init(unsigned short baud, unsigned char config)
 {
 	UBRR0H = (unsigned char) (baud >> 8);
 	UBRR0L = (unsigned char) baud;
+	UCSR0A |= (1 << U2X0);
 	UCSR0B |= ((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0) | (1 << TXCIE0));
-	UCSR0C |= ((1 << UCSZ00) | (1 << UCSZ01));
+	UCSR0B &= ~(1 << UDRIE0);
+	//UCSR0C |= ((1 << UCSZ00) | (1 << UCSZ01));
 	//UCSR0C &= ~((1 << UCSZ02) | (1 << USBS0));
+	UCSR0C = config;
 	tx_read = tx_write = writebuffer;
 	rx_read = rx_write = readbuffer;
 	running = 0;
@@ -98,13 +103,15 @@ unsigned char USART_read(unsigned char* buf, unsigned char length)
 	return i;
 }
 
-unsigned char USART_readByte(void)
+unsigned char USART_readByte(unsigned char* b)
 {
-	char b = *rx_read++;
+	if(rx_read == rx_write)
+		return 0;
+	*b = *rx_read++;
 	if(rx_read >= &readbuffer[READBUFFERSIZE])
 		rx_read = readbuffer;
 	do_xon();
-	return b;
+	return 1;
 }
 
 unsigned char USART_send(const unsigned char* data, unsigned char length)
@@ -151,7 +158,7 @@ ISR(USART0_TX_vect)
 /*! \brief Receive interrupt */
 ISR(USART0_RX_vect)
 {
-	int f = USART_free();
+	unsigned char f = USART_free();
 	if(f == 0) // rx buffer full, drop incoming byte
 		return;
 	*rx_write++ = UDR0;

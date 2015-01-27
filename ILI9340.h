@@ -124,6 +124,9 @@ u16	ILI9340_color565(const u8 r, const u8 g, const u8 b);
 void	ILI9340_setRotation(const u8 m);
 void	ILI9340_invertDisplay(const u8 i);
 
+u16	ILI9340_width();
+u16	ILI9340_height();
+
 // Exports
 #define	HAS_DRAWHLINE
 #define	HAS_DRAWVLINE

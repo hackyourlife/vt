@@ -4,11 +4,9 @@
 
 void SPI_init()
 {
-	PORTB &= ~_BV(PORTB2);
-	DDRB |= _BV(DDB2);
-	SPCR |= _BV(MSTR);
-	SPCR |= _BV(SPE);
-	DDRB |= _BV(DDB5) | _BV(DDB3);
+	PORTB |= _BV(PORTB2);
+	DDRB |= _BV(DDB2) | _BV(DDB5) | _BV(DDB3);
+	SPCR |= _BV(SPE) | _BV(MSTR);
 }
 
 void SPI_cleanup()
@@ -35,3 +33,8 @@ void SPI_setClockDivider(const u8 rate)
 	SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((rate >> 2) & SPI_2XCLOCK_MASK);
 }
 
+void SPI_transfer(const u8 data)
+{
+	SPDR = data;
+	while(!(SPSR & _BV(SPIF)));
+}

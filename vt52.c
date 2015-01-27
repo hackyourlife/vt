@@ -29,9 +29,8 @@ int vt52_process(char c)
 				case ESC:
 					state = STATE_ESC;
 					return 0;
-				default:
-					return 1;
 			}
+			return 1;
 			break;
 		case STATE_ESC:
 			switch(c) {

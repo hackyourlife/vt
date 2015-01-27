@@ -15,9 +15,9 @@ BUILD	:=	build
 MCU	:=	atmega328p
 F_CPU	:=	16000000L
 
-CFLAGS	:=	-Os -g0 -funsigned-bitfields -fpack-struct \
-		-fshort-enums -Wall -std=gnu99 \
+CFLAGS	:=	-Os -std=gnu99 -Wall \
 		-ffunction-sections -fdata-sections \
+		-funsigned-bitfields -fpack-struct -fshort-enums \
 		-mmcu=$(MCU)
 LDFLAGS	:=	-Wl,-x -Wl,--gc-sections -mmcu=$(MCU)
 

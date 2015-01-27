@@ -28,5 +28,6 @@ void SPI_cleanup();
 void SPI_setBitOrder(const u8 bitOrder);
 void SPI_setDataMode(const u8 mode);
 void SPI_setClockDivider(const u8 rate);
+void SPI_transfer(const u8 data);
 
 #endif

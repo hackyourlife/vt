@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include "usart.h"
@@ -58,7 +59,8 @@ int main()
 	init_pins();
 	LED_ON(LED_RED | LED_GREEN | LED_BLUE);
 
-	USART_init(USART_getBaud(BAUD));
+	USART_init(USART_getBaud(9600), USART_8N1);
+	sei();
 	if(!USART_send(usart_init, usart_init_length)) {
 		LED_ON(LED_BLUE);
 		LED_OFF(LED_GREEN);
@@ -69,8 +71,8 @@ int main()
 
 	GX_init();
 	VT_init();
-	ILI9340_fillScreen(0x0000);
 	ILI9340_setRotation(1);
+	ILI9340_fillScreen(0x0000);
 
 	LED_OFF(LED_PWM);
 
@@ -83,12 +85,28 @@ int main()
 	LED_OFF(LED_RED);
 	LED_ON(LED_GREEN);
 
+	u8 cnt = 0;
+	LED_OFF(LED_RED | LED_GREEN | LED_BLUE);
 	while(1) {
-		if(USART_canRead()) {
-			c = USART_readByte();
-			rx_char(c);
+		if(USART_read(&c, 1)) {
+			LED_ON(LED_BLUE);
+			cnt++;
+			//rx_char(c);
 			tx_char(c);
+			LED_OFF(LED_BLUE);
 		}
+		if(cnt & 0x01)
+			LED_ON(LED_BLUE);
+		else
+			LED_OFF(LED_BLUE);
+		if(cnt & 0x02)
+			LED_ON(LED_GREEN);
+		else
+			LED_OFF(LED_GREEN);
+		if(cnt & 0x04)
+			LED_ON(LED_RED);
+		else
+			LED_OFF(LED_RED);
 	}
 
 	return 0;

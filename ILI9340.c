@@ -50,22 +50,18 @@ void spiwrite_with_abandon(const u8 c)
 {
 	SPDR = c;
 	WAIT11;
-	//while(!(SPSR & (1<<SPIF)));
-	//SPI_transfer(c);
 }
 
 void spiwrite(const u8 c)
 {
 	SPDR = c;
 	WAIT;
-	//while(!(SPSR & (1<<SPIF)));
-	//SPI_transfer(c);
 }
 
 void ILI9340_writecommand(const u8 c)
 {
 	CLEAR_PIN(DC);
-	//CLEAR_PIN(SCLK);
+	CLEAR_PIN(SCLK);
 	CLEAR_PIN(CS);
 	spiwrite(c);
 	SET_PIN(CS);
@@ -74,7 +70,7 @@ void ILI9340_writecommand(const u8 c)
 void ILI9340_writedata(const u8 c)
 {
 	SET_PIN(DC);
-	//CLEAR_PIN(SCLK);
+	CLEAR_PIN(SCLK);
 	CLEAR_PIN(CS);
 	spiwrite(c);
 	SET_PIN(CS);
@@ -154,6 +150,7 @@ void USART_sendHEX(u16 v)
 	buf[4] = ';';
 	USART_send(buf, 5);
 }
+
 void ILI9340_setAddrWindow(const u16 x0, const u16 y0, const u16 x1,
 		const u16 y1)
 {
@@ -192,12 +189,15 @@ void ILI9340_drawPixel(const u16 x, const u16 y, const u16 color)
 void ILI9340_drawVLine(const u16 x, const u16 y, const u16 h,
 		const u16 color)
 {
-	u16 _h = h;
+	s16 _h = h;
 	if((x >= __width) || (y >= __height))
 		return;
 
 	if((y + h - 1) >= __height)
 		_h = __height - y;
+
+	if(_h < 1)
+		_h = 1;
 
 	ILI9340_setAddrWindow(x, y, x, y + _h - 1);
 
@@ -216,11 +216,13 @@ void ILI9340_drawVLine(const u16 x, const u16 y, const u16 h,
 void ILI9340_drawHLine(const u16 x, const u16 y, const u16 w,
 		const u16 color)
 {
-	u16 _w = w;
+	s16 _w = w;
 	if((x >= __width) || (y >= __height))
 		return;
 	if((x + w - 1) >= __width)
 		_w = __width - x;
+	if(_w < 1)
+		_w = 1;
 
 	ILI9340_setAddrWindow(x, y, x + _w - 1, y);
 
@@ -246,6 +248,8 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 {
 	s16 _w = w;
 	s16 _h = h;
+	s16 _x;
+	s16 _y;
 	if((x >= __width) || (y >= __height))
 		return;
 	if((x + _w - 1) >= __width)
@@ -261,8 +265,8 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 	SET_PIN(DC);
 	CLEAR_PIN(CS);
 
-	for(; _h > 0; _h--) {
-		for(; _w >= 0; _w--) {
+	for(_y = _h; _y > 0; _y--) {
+		for(_x = _w; _x > 0; _x--) {
 			spiwrite(hi);
 			spiwrite(lo);
 		}

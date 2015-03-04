@@ -22,6 +22,8 @@ const char reset[] PROGMEM = "\eH\eJ\0";
 const unsigned char usart_init[] = "VT52\n";
 #define usart_init_length 5
 
+void init();
+
 void tx_char(char c)
 {
 	USART_send((unsigned char*) &c, 1);
@@ -70,9 +72,9 @@ int main()
 	}
 
 	GX_init();
+	ILI9340_fillScreen(0x0000);
 	VT_init();
 	ILI9340_setRotation(1);
-	ILI9340_fillScreen(0x0000);
 
 	LED_OFF(LED_PWM);
 
@@ -84,15 +86,15 @@ int main()
 
 	LED_OFF(LED_RED);
 	LED_ON(LED_GREEN);
-
 	u8 cnt = 0;
 	LED_OFF(LED_RED | LED_GREEN | LED_BLUE);
+
 	while(1) {
-		if(USART_read(&c, 1)) {
+		if(USART_readByte(&c)) {
 			LED_ON(LED_BLUE);
 			cnt++;
-			//rx_char(c);
-			tx_char(c);
+			rx_char(c);
+			//tx_char(c);
 			LED_OFF(LED_BLUE);
 		}
 		if(cnt & 0x01)

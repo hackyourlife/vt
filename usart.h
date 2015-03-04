@@ -9,8 +9,8 @@
 #ifndef	__USART_H__
 #define	__USART_H__
 
-#define	WRITEBUFFERSIZE		64	/*!< Transmit buffer size in bytes */
-#define READBUFFERSIZE		64	/*!< Receive buffer size in bytes */
+#define	WRITEBUFFERSIZE		6	/*!< Transmit buffer size: 2^x bytes */
+#define	READBUFFERSIZE		6	/*!< Receive buffer size: 2^x bytes */
 
 #define	XOFF			0x13
 #define	XON			0x11
@@ -20,7 +20,8 @@
 //#define USART_available()	(UCSR0A & (1 << RXC0))
 
 /*! \brief Returns the amount of data in the read buffer */
-#define USART_available()	(READBUFFERSIZE - USART_free() - 1)
+//#define USART_available()	((1 << READBUFFERSIZE) - USART_free() - 1)
+unsigned char USART_available();
 
 /*! \brief Calculates the baud setting.
  *

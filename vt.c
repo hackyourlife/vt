@@ -135,12 +135,7 @@ void erase_cursor_to_end()
 		return;
 	u16 px = 0;
 	u16 py = (cursorY + 1) * 6;
-	while(py < HEIGHT) {
-		while(px < WIDTH)
-			GX_drawPixel(px++, py, bgcolor);
-		px = 0;
-		py++;
-	}
+	GX_fillRect(px, py, WIDTH - px, HEIGHT - py, bgcolor);
 }
 
 void erase_line(const u8 n)

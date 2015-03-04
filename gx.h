@@ -60,7 +60,7 @@ void GX_drawTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
 		const u16 x2, const u16 y2, const u16 color);
 void GX_fillTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
 		const u16 x2, const u16 y2, const u16 color);
-void GX_drawHLine(const u16 x, const u16 y, const u16 h, const u16 color);
+void GX_drawHLine(const u16 x, const u16 y, const u16 w, const u16 color);
 void GX_drawVLine(const u16 x, const u16 y, const u16 h, const u16 color);
 
 #endif

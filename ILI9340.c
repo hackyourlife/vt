@@ -107,7 +107,6 @@ void ILI9340_commandList(const u8* addr)
 	}
 }
 
-unsigned char USART_send(unsigned char*, unsigned char);
 void ILI9340_init()
 {
 	DDRRST |= RSTMASK;
@@ -133,22 +132,6 @@ void ILI9340_init()
 	// Display on
 	ILI9340_writecommand(0x29);
 	ILI9340_writecommand(0x2C);
-
-
-	unsigned char info[] = "initialized\r\n";
-	USART_send(info, 13);
-}
-
-void USART_sendHEX(u16 v)
-{
-	unsigned char t[16] = "0123456789ABCDEF";
-	unsigned char buf[5];
-	buf[0] = t[(v >> 12) & 0x0F];
-	buf[1] = t[(v >>  8) & 0x0F];
-	buf[2] = t[(v >>  4) & 0x0F];
-	buf[3] = t[v & 0x0F];
-	buf[4] = ';';
-	USART_send(buf, 5);
 }
 
 void ILI9340_setAddrWindow(const u16 x0, const u16 y0, const u16 x1,

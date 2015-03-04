@@ -34,8 +34,6 @@ static unsigned char rx_write;	/*!< Write pointer in the receive buffer */
 static unsigned char txbuffer[TX_BUFFER_SIZE]; /*!< Transmit buffer */
 static unsigned char rxbuffer[RX_BUFFER_SIZE]; /*!< Receive buffer */
 
-static unsigned char running;	/*!< True when there is data to be transmitted */
-
 static unsigned char paused;
 
 static void do_xoff()
@@ -70,13 +68,10 @@ void USART_init(unsigned short baud, unsigned char config)
 	UCSR0A |= (1 << U2X0);
 	UCSR0B |= ((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
 	UCSR0B &= ~((1 << UDRIE0) | (1 << TXCIE0) | (1 << UCSZ02));
-	//UCSR0C |= ((1 << UCSZ00) | (1 << UCSZ01));
-	//UCSR0C &= ~(1 << USBS0);
-	UCSR0A &= ~(1 << MPCM0);					// SingleMaster
+	UCSR0A &= ~(1 << MPCM0); // SingleMaster
 	UCSR0C = config;
 	tx_read = tx_write = 0;
 	rx_read = rx_write = 0;
-	running = 0;
 	paused = 0;
 }
 
@@ -113,7 +108,7 @@ unsigned char USART_read(unsigned char* buf, unsigned char length)
 		*buf++ = rxbuffer[rx_read++];
 		rx_read &= RX_BUFFER_MASK;
 	}
-	//do_xon();
+	do_xon();
 	return i;
 }
 
@@ -123,7 +118,7 @@ unsigned char USART_readByte(unsigned char* b)
 		return 0;
 	*b = rxbuffer[rx_read++];
 	rx_read &= RX_BUFFER_MASK;
-	//do_xon();
+	do_xon();
 	return 1;
 }
 
@@ -140,12 +135,6 @@ unsigned char USART_send(const unsigned char* data, unsigned char length)
 		SREG = sreg;
 		return 0;
 	}
-	//if(!running) { // initial byte transmission, starts interrupt
-	//	UDR0 = *data;
-	//	data++;
-	//	length--;
-	//	running = 1;
-	//}
 	for(i = 0; i < length; i++) { // data -> transmit buffer
 		txbuffer[tx_write++] = *data++;
 		tx_write &= TX_BUFFER_MASK;
@@ -156,14 +145,11 @@ unsigned char USART_send(const unsigned char* data, unsigned char length)
 }
 
 /*! \brief Transmit interrupt */
-//ISR(USART0_TX_vect)
 ISR(USART0_UDRE_vect)
 {
 	// buffer empty
 	if(tx_read == tx_write) {
 		UCSR0B &= ~(1 << UDRIE0);
-		//running = 0;
-		//return;
 	} else {
 		UDR0 = txbuffer[tx_read++];
 		tx_read &= TX_BUFFER_MASK;
@@ -173,11 +159,11 @@ ISR(USART0_UDRE_vect)
 /*! \brief Receive interrupt */
 ISR(USART0_RX_vect)
 {
-	//unsigned char f = USART_free();
-	//if(f == 0) // rx buffer full, drop incoming byte
-	//	return;
+	unsigned char f = USART_free();
+	if(f == 0) // rx buffer full, drop incoming byte
+		return;
 	rxbuffer[rx_write++] = UDR0;
 	rx_write &= TX_BUFFER_MASK;
-	//if(f < 5)
-	//	do_xoff();
+	if(f < 5)
+		do_xoff();
 }

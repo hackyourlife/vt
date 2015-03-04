@@ -17,10 +17,8 @@
 #define	LED_BLUE		_BV(PORTD6)
 #define	LED_PWM			_BV(PORTD5)
 
-const char welcome_text[] PROGMEM = "VT52 Emulator v1.0\0";
-const char reset[] PROGMEM = "\eH\eJ\0";
-const unsigned char usart_init[] = "VT52\n";
-#define usart_init_length 5
+const char welcome_text[] PROGMEM = "VT52 Emulator v1.0";
+const char reset[] PROGMEM = "\eH\eJ";
 
 void init();
 
@@ -63,13 +61,6 @@ int main()
 
 	USART_init(USART_getBaud(9600), USART_8N1);
 	sei();
-	if(!USART_send(usart_init, usart_init_length)) {
-		LED_ON(LED_BLUE);
-		LED_OFF(LED_GREEN);
-		while(1) {
-			PORTD ^= LED_RED;
-		}
-	}
 
 	GX_init();
 	ILI9340_fillScreen(0x0000);
@@ -94,21 +85,8 @@ int main()
 			LED_ON(LED_BLUE);
 			cnt++;
 			rx_char(c);
-			//tx_char(c);
 			LED_OFF(LED_BLUE);
 		}
-		if(cnt & 0x01)
-			LED_ON(LED_BLUE);
-		else
-			LED_OFF(LED_BLUE);
-		if(cnt & 0x02)
-			LED_ON(LED_GREEN);
-		else
-			LED_OFF(LED_GREEN);
-		if(cnt & 0x04)
-			LED_ON(LED_RED);
-		else
-			LED_OFF(LED_RED);
 	}
 
 	return 0;

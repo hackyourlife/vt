@@ -72,6 +72,7 @@ void VT220_reset()
 	cursorY_stored = 0;
 	auto_wrap_stored = 1;
 	flags = _BV(MODE_7BIT);
+	auto_wrap = 1;
 	set_gx_mode();
 	cursor_home();
 	erase_screen();

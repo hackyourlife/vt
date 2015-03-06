@@ -64,10 +64,6 @@ void VT_reset()
 
 void drawchar(char c)
 {
-	u16 px = cursorX * FONT_WIDTH;
-	u16 py = cursorY * FONT_HEIGHT;
-	drawchar_mini(c, fgcolor, bgcolor, px, py);
-	cursorX++;
 	if(cursorX == COLUMNS) {
 		if(auto_wrap) {
 			carriage_return();
@@ -75,6 +71,12 @@ void drawchar(char c)
 		} else
 			cursorX--;
 	}
+	u16 px = cursorX * FONT_WIDTH;
+	u16 py = cursorY * FONT_HEIGHT;
+	drawchar_mini(c, fgcolor, bgcolor, px, py);
+	cursorX++;
+	if(cursorX > COLUMNS)
+		cursorX = COLUMNS;
 }
 
 void rx_char(char c)

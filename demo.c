@@ -37,9 +37,9 @@ int main(int argc, char** argv)
 	//while(*c != 0)
 	//	rx_char(*(c++));
 	// test VT routines
-	//mode = MODE_VT52;
-	//VT_reset();
-	FILE* f = fopen("vt220ls.log", "rb");
+	mode = MODE_VT52;
+	VT_reset();
+	FILE* f = fopen("vt52.log", "rb");
 	char c;
 	while(!feof(f)) {
 		c = fgetc(f);

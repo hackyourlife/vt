@@ -1,3 +1,4 @@
+#include "gx.h"
 #include "vt.h"
 
 #define	STATE_TEXT	0
@@ -9,7 +10,15 @@ static int state = STATE_TEXT;
 static int px;
 static int py;
 
-int vt52_process(char c)
+void VT52_reset()
+{
+	fgcolor = RGB565(0x00, 0xF6, 0xC0);
+	bgcolor = 0x0000;
+	cursor_home();
+	erase_screen();
+}
+
+u8 VT52_process(char c)
 {
 	switch(state) {
 		case STATE_TEXT:

@@ -20,6 +20,8 @@
 
 #define	delay			_delay_ms
 
+#define	MAX(X, Y)		((X) > (Y) ? (X) : (Y))
+
 static u16 __width = ILI9340_TFTWIDTH;
 static u16 __height = ILI9340_TFTHEIGHT;
 
@@ -46,13 +48,13 @@ static const u8 init_sequence[] PROGMEM = {
 	0x11, 0x00 // Exit sleep
 };
 
-void spiwrite_with_abandon(const u8 c)
+static void spiwrite_with_abandon(const u8 c)
 {
 	SPDR = c;
 	WAIT11;
 }
 
-void spiwrite(const u8 c)
+static void spiwrite(const u8 c)
 {
 	SPDR = c;
 	WAIT;
@@ -147,7 +149,6 @@ void ILI9340_setAddrWindow(const u16 x0, const u16 y0, const u16 x1,
 	ILI9340_writedata(y0 & 0xFF); // YSTART
 	ILI9340_writedata(y1 >> 8);
 	ILI9340_writedata(y1 & 0xFF); // YEND
-	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
 }
 
 void ILI9340_pushColor(const u16 color)
@@ -162,6 +163,7 @@ void ILI9340_pushColor(const u16 color)
 void ILI9340_drawPixel(const u16 x, const u16 y, const u16 color)
 {
 	ILI9340_setAddrWindow(x, y, x, y);
+	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
 	SET_PIN(DC);
 	CLEAR_PIN(CS);
 	spiwrite(color >> 8);
@@ -183,6 +185,7 @@ void ILI9340_drawVLine(const u16 x, const u16 y, const u16 h,
 		_h = 1;
 
 	ILI9340_setAddrWindow(x, y, x, y + _h - 1);
+	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
 
 	u8 hi = color >> 8;
 	u8 lo = color & 0xFF;
@@ -208,6 +211,7 @@ void ILI9340_drawHLine(const u16 x, const u16 y, const u16 w,
 		_w = 1;
 
 	ILI9340_setAddrWindow(x, y, x + _w - 1, y);
+	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
 
 	u8 hi = color >> 8;
 	u8 lo = color & 0xFF;
@@ -241,6 +245,7 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		_h = __height - y;
 
 	ILI9340_setAddrWindow(x, y, x + _w - 1, y + _h - 1);
+	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
 
 	u8 hi = color >> 8;
 	u8 lo = color & 0xFF;
@@ -301,6 +306,25 @@ void ILI9340_invertDisplay(const u8 i)
 	ILI9340_writecommand(i ? ILI9340_INVON : ILI9340_INVOFF);
 }
 
+void ILI9340_scrollingDefinition(const u16 tfa, const u16 bfa)
+{
+	u16 vsa = __height - tfa - bfa;
+	ILI9340_writecommand(ILI9340_VSCRDEF);
+	ILI9340_writedata(tfa >> 8);
+	ILI9340_writedata(tfa & 0xFF);
+	ILI9340_writedata(vsa >> 8);
+	ILI9340_writedata(vsa & 0xFF);
+	ILI9340_writedata(bfa >> 8);
+	ILI9340_writedata(bfa & 0xFF);
+}
+
+void ILI9340_scrollPosition(const u16 vsp)
+{
+	ILI9340_writecommand(ILI9340_VSCRSADD);
+	ILI9340_writedata(vsp >> 8);
+	ILI9340_writedata(vsp & 0xFF);
+}
+
 u16 ILI9340_width()
 {
 	return __width;
@@ -309,4 +333,49 @@ u16 ILI9340_width()
 u16 ILI9340_height()
 {
 	return __height;
+}
+
+u8 spiread(void)
+{
+	SPDR = 0x00;
+	while(!(SPSR & _BV(SPIF)));
+	return SPDR;
+}
+
+u8 ILI9340_readdata(void)
+{
+	SET_PIN(DC);
+	CLEAR_PIN(CS);
+	u8 r = spiread();
+	SET_PIN(CS);
+	return r;
+}
+
+void ILI9340_scroll_up(const u16 lines, const u16 bgcolor)
+{
+	u8 buf[MAX(ILI9340_TFTWIDTH, ILI9340_TFTHEIGHT) * 2];
+	u16 px;
+	u16 py;
+	u16 bytes = __width * 2;
+	for(py = __height - 1; py >= lines; py--) {
+		ILI9340_setAddrWindow(0, py, __width - 1, py);
+		ILI9340_writecommand(ILI9340_RAMRD);
+		SET_PIN(DC);
+		CLEAR_PIN(CS);
+		for(px = 0; px < bytes;) {
+			buf[px++] = spiread();
+			buf[px++] = spiread();
+		}
+		SET_PIN(CS);
+
+		ILI9340_setAddrWindow(0, py - lines, __width - 1, py - lines);
+		ILI9340_writecommand(ILI9340_RAMWR);
+
+		SET_PIN(DC);
+		CLEAR_PIN(CS);
+		for(px = 0; px < bytes; px++)
+			spiwrite_with_abandon(buf[px]);
+		SET_PIN(CS);
+	}
+	ILI9340_fillRect(0, __height - lines, __width, lines, bgcolor);
 }

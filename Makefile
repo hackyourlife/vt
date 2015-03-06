@@ -15,7 +15,7 @@ BUILD	:=	build
 MCU	:=	atmega328p
 F_CPU	:=	16000000L
 
-CFLAGS	:=	-Os -std=gnu99 -Wall \
+CFLAGS	:=	-Os -Wall \
 		-ffunction-sections -fdata-sections \
 		-funsigned-bitfields -fpack-struct -fshort-enums \
 		-mmcu=$(MCU)
@@ -23,8 +23,8 @@ LDFLAGS	:=	-Wl,-x -Wl,--gc-sections -mmcu=$(MCU)
 
 CFLAGS	+=	-DF_CPU=$(F_CPU)
 
-CFILES	:=	vt.c vt52.c tek4014.c fnt4x6.c ILI9340.c gx.c usart.c spi.c \
-		main.c
+CFILES	:=	vt.c vt52.c vt220.c tek4014.c fnt4x6.c ILI9340.c gx.c \
+		usart.c spi.c main.c
 
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #-------------------------------------------------------------------------------
@@ -42,7 +42,10 @@ $(BUILD):
 
 demo:
 	@echo "[DEMO]"
-	@gcc -o demo -D __DEMO__ vt.c vt52.c tek4014.c fnt4x6.c gx.c demo.c
+	@gcc -o demo -D __DEMO__ -Os -Wall -ffunction-sections -fdata-sections \
+			-funsigned-bitfields -fpack-struct -fshort-enums \
+			vt.c vt52.c vt220.c tek4014.c fnt4x6.c gx.c \
+			demo.c
 
 clean:
 	@echo "[CLEAN]"

@@ -323,3 +323,10 @@ void GX_drawVLine(const u16 x, const u16 y, const u16 h, const u16 color)
 	GX_drawLine(x, y, x, y + h - 1, color);
 }
 #endif
+
+#ifndef HAS_FILLSCREEN
+void GX_fillScreen(const u16 color)
+{
+	GX_fillRect(0, 0, GXCMD(width)(), GXCMD(height)(), color);
+}
+#endif

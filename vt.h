@@ -10,8 +10,9 @@
 
 #define	MODE_VT52	0
 #define	MODE_VT102	1
-#define	MODE_VT340	2
-#define	MODE_TEK4014	3
+#define	MODE_VT220	2
+#define	MODE_VT340	3
+#define	MODE_TEK4014	4
 
 #define	NUL		0x00
 #define	SOH		0x01
@@ -57,36 +58,75 @@
 #define	ST		0x9C
 
 // INITIALIZATION
-void VT_init();
+void	VT_init();
+void	VT_reset();
 
 // GLOBAL VT COMMANDS
-void carriage_return();
-void linefeed();
-void cursor_up();
-void cursor_down();
-void cursor_up_scroll();
-void cursor_down_scroll();
-void cursor_left();
-void cursor_right();
-void cursor_home();
-void cursor_tabstop();
-void cursor_goto(const int x, const int y);
-void reverse_linefeed();
-void erase_cursor_to_eol();
-void erase_cursor_to_end();
-void scroll_up();
-void scroll_down();
+void	carriage_return();
+void	linefeed();
+void	reverse_linefeed();
+
+void	cursor_up();
+void	cursor_down();
+void	cursor_up_scroll();
+void	cursor_down_scroll();
+void	cursor_left();
+void	cursor_right();
+void	cursor_home();
+void	cursor_tabstop();
+void	cursor_goto(const int x, const int y);
+
+void	cursor_down_n(const u8 n);
+void	cursor_up_n(const u8 n);
+void	cursor_left_n(const u8 n);
+void	cursor_right_n(const u8 n);
+
+void	scroll_up();
+void	scroll_down();
+
+void	set_tabstop();
+void	clear_tabstop();
+void	clear_all_tabstops();
+
+void	erase_cursor_to_eol();
+void	erase_cursor_to_end();
+void	erase_characters(const u8 n);
+void	erase_cursor_line();
+void	erase_cursor_to_bol();
+void	erase_cursor_to_begin();
+void	erase_screen();
 
 // SPECIFIC VT
-int vt52_process(char c);
+void	VT52_reset();
+void	VT220_reset();
+u8	VT52_process(char c);
+u8	VT220_process(unsigned char c);
 
 // RS232 COMMUNICATIONS
-void rx_char(char c);
-void tx_char(char);
+void	rx_char(char c);
+void	tx_char(char);
+void	tx_dec(u16 dec);
+void	tx_str(const char* s);
 
 // FONTS
 #define FONT_WIDTH	4
 #define	FONT_HEIGHT	6
-void drawchar_mini(const char c, const u16 fg, const u16 bg, const u16 x, const u16 y);
+void	drawchar_mini(const char c, const u16 fg, const u16 bg, const u16 x,
+		const u16 y);
+
+// SETTINGS
+extern u16 fgcolor;
+extern u16 bgcolor;
+extern u8 auto_wrap;
+extern u8 cursorX;
+extern u8 cursorY;
+extern u8 mode;
+
+// COLORS
+#define	DEFAULT_FG	7
+#define	DEFAULT_BG	0
+extern const u16 colors[16];
+
+u16	get_color(const u8 idx);
 
 #endif

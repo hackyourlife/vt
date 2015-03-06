@@ -36,23 +36,23 @@ static unsigned char rxbuffer[RX_BUFFER_SIZE]; /*!< Receive buffer */
 
 static unsigned char paused;
 
-static void do_xoff()
-{
-	return;
-	unsigned char xoff = XOFF;
-	paused = USART_send(&xoff, 1);
-}
-
-static void do_xon()
-{
-	return;
-	unsigned char xon = XON;
-	if(USART_free() < (RX_BUFFER_SIZE / 2))
-		return;
-	if(paused)
-		USART_send(&xon, 1);
-	paused = 0;
-}
+//static void do_xoff()
+//{
+//	return;
+//	unsigned char xoff = XOFF;
+//	paused = USART_send(&xoff, 1);
+//}
+//
+//static void do_xon()
+//{
+//	return;
+//	unsigned char xon = XON;
+//	if(USART_free() < (RX_BUFFER_SIZE / 2))
+//		return;
+//	if(paused)
+//		USART_send(&xon, 1);
+//	paused = 0;
+//}
 
 #ifndef BAUD_MACRO
 unsigned short USART_getBaud(unsigned long baud)
@@ -108,7 +108,7 @@ unsigned char USART_read(unsigned char* buf, unsigned char length)
 		*buf++ = rxbuffer[rx_read++];
 		rx_read &= RX_BUFFER_MASK;
 	}
-	do_xon();
+	//do_xon();
 	return i;
 }
 
@@ -118,7 +118,7 @@ unsigned char USART_readByte(unsigned char* b)
 		return 0;
 	*b = rxbuffer[rx_read++];
 	rx_read &= RX_BUFFER_MASK;
-	do_xon();
+	//do_xon();
 	return 1;
 }
 
@@ -159,11 +159,11 @@ ISR(USART0_UDRE_vect)
 /*! \brief Receive interrupt */
 ISR(USART0_RX_vect)
 {
-	unsigned char f = USART_free();
-	if(f == 0) // rx buffer full, drop incoming byte
-		return;
+	//unsigned char f = USART_free();
+	//if(f == 0) // rx buffer full, drop incoming byte
+	//	return;
 	rxbuffer[rx_write++] = UDR0;
 	rx_write &= TX_BUFFER_MASK;
-	if(f < 5)
-		do_xoff();
+	//if(f < 5)
+	//	do_xoff();
 }

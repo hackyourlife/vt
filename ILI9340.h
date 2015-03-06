@@ -31,6 +31,9 @@
 #define	ILI9340_DISPOFF		0x28
 #define	ILI9340_DISPON		0x29
 
+#define	ILI9340_VSCRDEF		0x33
+#define	ILI9340_VSCRSADD	0x37
+
 #define	ILI9340_CASET		0x2A
 #define	ILI9340_PASET		0x2B
 #define	ILI9340_RAMWR		0x2C
@@ -101,9 +104,6 @@
 #define	DDRDC			DDRB
 #define	DDRRST			DDRB
 
-#define	RGB565(r, g, b)		(((r & 0xF8) << 8) | ((g & 0xFC) << 3) \
-					| (b >> 3))
-
 // Commands
 void	ILI9340_writecommand(const u8 c);
 void	ILI9340_writedata(const u8 c);
@@ -124,6 +124,10 @@ u16	ILI9340_color565(const u8 r, const u8 g, const u8 b);
 void	ILI9340_setRotation(const u8 m);
 void	ILI9340_invertDisplay(const u8 i);
 
+void	ILI9340_scrollingDefinition(const u16 tfa, const u16 bfa);
+void	ILI9340_scrollPosition(const u16 vsp);
+void	ILI9340_scroll_up(const u16 lines, const u16 bgcolor);
+
 u16	ILI9340_width();
 u16	ILI9340_height();
 
@@ -131,5 +135,6 @@ u16	ILI9340_height();
 #define	HAS_DRAWHLINE
 #define	HAS_DRAWVLINE
 #define	HAS_FILLRECT
+#define	HAS_FILLSCREEN
 
 #endif

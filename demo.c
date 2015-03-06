@@ -19,6 +19,16 @@ void DEMO_drawPixel(const u16 x, const u16 y, const u16 color)
 	buffer[idx] = color;
 }
 
+u16 DEMO_width()
+{
+	return WIDTH;
+}
+
+u16 DEMO_height()
+{
+	return HEIGHT;
+}
+
 int main(int argc, char** argv)
 {
 	buffer = (u16*) malloc(WIDTH * HEIGHT * sizeof(u16));
@@ -27,7 +37,9 @@ int main(int argc, char** argv)
 	//while(*c != 0)
 	//	rx_char(*(c++));
 	// test VT routines
-	FILE* f = fopen("vt52.log", "rb");
+	//mode = MODE_VT52;
+	//VT_reset();
+	FILE* f = fopen("vt220ls.log", "rb");
 	char c;
 	while(!feof(f)) {
 		c = fgetc(f);
@@ -67,40 +79,40 @@ void tx_char(char c)
 	printf("%c", c);
 }
 
-void scroll_up()
-{
-	int cx;
-	int cy;
-	int idx;
-	int o;
-	u16 c;
-	for(cy = 1; cy < LINES; cy++) {
-		for(cx = 0; cx < WIDTH; cx++) {
-			for(o = 0; o < 6; o++) {
-				idx = (cy * FONT_HEIGHT + o) * WIDTH + cx;
-				c = buffer[idx];
-				idx = ((cy - 1) * FONT_HEIGHT + o) * WIDTH + cx;
-				buffer[idx] = c;
-			}
-		}
-	}
-}
-
-void scroll_down()
-{
-	int cx;
-	int cy;
-	int idx;
-	int o;
-	u16 c;
-	for(cy = 0; cy < LINES - 1; cy++) {
-		for(cx = 0; cx < WIDTH; cx++) {
-			for(o = 0; o < FONT_HEIGHT; o++) {
-				idx = (cy * FONT_HEIGHT + o) * WIDTH + cx;
-				c = buffer[idx];
-				idx = ((cy + 1) * FONT_HEIGHT + o) * WIDTH + cx;
-				buffer[idx] = c;
-			}
-		}
-	}
-}
+//void scroll_up()
+//{
+//	int cx;
+//	int cy;
+//	int idx;
+//	int o;
+//	u16 c;
+//	for(cy = 1; cy < LINES; cy++) {
+//		for(cx = 0; cx < WIDTH; cx++) {
+//			for(o = 0; o < 6; o++) {
+//				idx = (cy * FONT_HEIGHT + o) * WIDTH + cx;
+//				c = buffer[idx];
+//				idx = ((cy - 1) * FONT_HEIGHT + o) * WIDTH + cx;
+//				buffer[idx] = c;
+//			}
+//		}
+//	}
+//}
+//
+//void scroll_down()
+//{
+//	int cx;
+//	int cy;
+//	int idx;
+//	int o;
+//	u16 c;
+//	for(cy = 0; cy < LINES - 1; cy++) {
+//		for(cx = 0; cx < WIDTH; cx++) {
+//			for(o = 0; o < FONT_HEIGHT; o++) {
+//				idx = (cy * FONT_HEIGHT + o) * WIDTH + cx;
+//				c = buffer[idx];
+//				idx = ((cy + 1) * FONT_HEIGHT + o) * WIDTH + cx;
+//				buffer[idx] = c;
+//			}
+//		}
+//	}
+//}

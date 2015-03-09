@@ -330,3 +330,33 @@ void GX_fillScreen(const u16 color)
 	GX_fillRect(0, 0, GXCMD(width)(), GXCMD(height)(), color);
 }
 #endif
+
+#ifndef HAS_BITMAP
+static u16 x0;
+static u16 y0;
+static u16 w;
+static u16 px;
+static u16 py;
+void GX_begin(const u16 x, const u16 y, const u8 width, const u8 height)
+{
+	x0 = x;
+	y0 = y;
+	px = x;
+	py = y;
+	w = width;
+}
+
+void GX_end()
+{
+}
+
+void GX_pixel(const u16 color)
+{
+	GX_drawPixel(px, py, color);
+	px++;
+	if((px - x0) >= w) {
+		px = x0;
+		py++;
+	}
+}
+#endif

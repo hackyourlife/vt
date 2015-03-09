@@ -235,8 +235,8 @@ u8 VT220_process(unsigned char c)
 				// TODO: DECOM
 				case CUP:
 				case HVP:
-					cursor_goto(MAX(parameters[0], 1),
-							MAX(parameters[1], 1));
+					cursor_goto(MAX(parameters[1], 1),
+							MAX(parameters[0], 1));
 					break;
 				case 'g':
 					if(parameters[0] == 0)

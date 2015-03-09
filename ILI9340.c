@@ -7,8 +7,9 @@
 #include "ILI9340.h"
 
 #define	NOP __asm__ __volatile__ ("nop");
-#define	WAIT NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 15 NOPs 
-#define	WAIT11 NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 11 NOPs 
+#define	WAIT NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 15 NOPs
+#define	WAIT11 NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP NOP // 11 NOPs
+#define	WAIT7 NOP NOP NOP NOP NOP NOP NOP // 7 NOPs
 
 #define	SET_BIT(port, mask)	port |= (mask)
 #define	CLEAR_BIT(port, mask)	port &= ~(mask)
@@ -52,6 +53,12 @@ static void spiwrite_with_abandon(const u8 c)
 {
 	SPDR = c;
 	WAIT11;
+}
+
+static void spiwrite_with_abandon_short(const u8 c)
+{
+	SPDR = c;
+	WAIT7;
 }
 
 static void spiwrite(const u8 c)
@@ -171,6 +178,26 @@ void ILI9340_drawPixel(const u16 x, const u16 y, const u16 color)
 	SET_PIN(CS);
 }
 
+// ATTENTION: no argument validation
+void ILI9340_begin(const u16 x, const u16 y, const u8 width, const u8 height)
+{
+	ILI9340_setAddrWindow(x, y, x + width - 1, y + height - 1);
+	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
+	SET_PIN(DC);
+	CLEAR_PIN(CS);
+}
+
+void ILI9340_end()
+{
+	SET_PIN(CS);
+}
+
+void ILI9340_pixel(const u16 color)
+{
+	spiwrite(color >> 8);
+	spiwrite_with_abandon(color);
+}
+
 void ILI9340_drawVLine(const u16 x, const u16 y, const u16 h,
 		const u16 color)
 {
@@ -237,12 +264,13 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 	s16 _h = h;
 	s16 _x;
 	s16 _y;
-	if((x >= __width) || (y >= __height))
-		return;
-	if((x + _w - 1) >= __width)
-		_w = __width - x;
-	if((y + _h - 1) >= __height)
-		_h = __height - y;
+	// NO ERROR CHECKING/CORRECTION
+	//if((x >= __width) || (y >= __height))
+	//	return;
+	//if((x + _w - 1) >= __width)
+	//	_w = __width - x;
+	//if((y + _h - 1) >= __height)
+	//	_h = __height - y;
 
 	ILI9340_setAddrWindow(x, y, x + _w - 1, y + _h - 1);
 	ILI9340_writecommand(ILI9340_RAMWR); // write to RAM
@@ -256,7 +284,7 @@ void ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 	for(_y = _h; _y > 0; _y--) {
 		for(_x = _w; _x > 0; _x--) {
 			spiwrite(hi);
-			spiwrite(lo);
+			spiwrite_with_abandon_short(lo);
 		}
 	}
 

@@ -123,6 +123,9 @@ void	ILI9340_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 u16	ILI9340_color565(const u8 r, const u8 g, const u8 b);
 void	ILI9340_setRotation(const u8 m);
 void	ILI9340_invertDisplay(const u8 i);
+void	ILI9340_begin(const u16 x, const u16 y, const u8 width, const u8 height);
+void	ILI9340_end();
+void	ILI9340_pixel(const u16 color);
 
 void	ILI9340_scrollingDefinition(const u16 tfa, const u16 bfa);
 void	ILI9340_scrollPosition(const u16 vsp);
@@ -136,5 +139,6 @@ u16	ILI9340_height();
 #define	HAS_DRAWVLINE
 #define	HAS_FILLRECT
 #define	HAS_FILLSCREEN
+#define	HAS_BITMAP
 
 #endif

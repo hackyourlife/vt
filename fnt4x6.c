@@ -16,30 +16,25 @@ static void drawglyph_mini(const u8* chr, const u16 fg, const u16 bg,
 static void drawglyph_mini(const u8* chr, const u16 fg, const u16 bg,
 		u16 x, u16 y)
 {
-	u8 i;
 	u8 n;
 	u8 c;
 	u8 t = 0;
-	u16 color;
+	GX_begin(x, y, FONT_WIDTH, FONT_HEIGHT);
 	for(n = 0; n < 6; n++) {
 		c = pgm_read_byte(chr);
-		if(n % 2)
+		if(n & 0x01)
 			chr++;
-		x += 4;
-		if(t) {
+		if(t)
 			c &= 0x0F;
-		} else {
+		else
 			c >>= 4;
-		}
 		t = !t;
-		for(i = 0; i < 4; i++) {
-			color = c & 0x01 ? fg : bg;
-			GX_drawPixel(x, y, color);
-			c >>= 1;
-			x--;
-		}
-		y++;
+		GX_pixel(c & 0x08 ? fg : bg);
+		GX_pixel(c & 0x04 ? fg : bg);
+		GX_pixel(c & 0x02 ? fg : bg);
+		GX_pixel(c & 0x01 ? fg : bg);
 	}
+	GX_end();
 }
 
 void drawchar_mini(const char c, const u16 fg, const u16 bg, const u16 x,

@@ -45,29 +45,37 @@
 #ifdef HAS_FILLSCREEN
 #define	GX_fillScreen	GXCMD(fillScreen)
 #endif
+#ifdef HAS_BITMAP
+#define	GX_begin	GXCMD(begin)
+#define	GX_end		GXCMD(end)
+#define	GX_pixel	GXCMD(pixel)
+#endif
 
 #define	RGB565(r, g, b)		(((r & 0xF8) << 8) | ((g & 0xFC) << 3) \
 					| (b >> 3))
 
-void GX_init();
-void GX_drawCircle(const u16 x0, const u16 y0, const u16 r, const u16 color);
-void GX_fillCircle(const u16 x0, const u16 y0, const u16 r, const u16 color);
-void GX_drawLine(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
+void	GX_init();
+void	GX_drawCircle(const u16 x0, const u16 y0, const u16 r, const u16 color);
+void	GX_fillCircle(const u16 x0, const u16 y0, const u16 r, const u16 color);
+void	GX_drawLine(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
 		const u16 color);
-void GX_drawRect(const u16 x, const u16 y, const u16 w, const u16 h,
+void	GX_drawRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		const u16 color);
-void GX_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
+void	GX_fillRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		const u16 color);
-void GX_drawRoundRect(const u16 x, const u16 y, const u16 w, const u16 h,
+void	GX_drawRoundRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		const u16 r, const u16 color);
-void GX_fillRoundRect(const u16 x, const u16 y, const u16 w, const u16 h,
+void	GX_fillRoundRect(const u16 x, const u16 y, const u16 w, const u16 h,
 		const u16 r, const u16 color);
-void GX_drawTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
+void	GX_drawTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
 		const u16 x2, const u16 y2, const u16 color);
-void GX_fillTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
+void	GX_fillTriangle(const u16 x0, const u16 y0, const u16 x1, const u16 y1,
 		const u16 x2, const u16 y2, const u16 color);
-void GX_drawHLine(const u16 x, const u16 y, const u16 w, const u16 color);
-void GX_drawVLine(const u16 x, const u16 y, const u16 h, const u16 color);
-void GX_fillScreen(const u16 color);
+void	GX_drawHLine(const u16 x, const u16 y, const u16 w, const u16 color);
+void	GX_drawVLine(const u16 x, const u16 y, const u16 h, const u16 color);
+void	GX_fillScreen(const u16 color);
+void	GX_begin(const u16 x, const u16 y, const u8 width, const u8 height);
+void	GX_end();
+void	GX_pixel(const u16 color);
 
 #endif
